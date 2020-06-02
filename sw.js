@@ -10,7 +10,7 @@ self.addEventListener('install', async event => {
     '/index.css',
     '/qyer_logo_114.png',
     '/manifest.json',
-    '/mock.json'
+    '/api/mock.json'
   ])
 
   // 会让 serviceWroker 跳过等待，直接进入activate状态
@@ -38,23 +38,30 @@ self.addEventListener('fetch', async event => {
   console.log('fetch', event.request.url)
   // 请求对象
   const req = event.request
-  event.respondWith(networkFirst(req))
+  if (req.url.includes('/api')) {
+    event.respondWith(networkFirst(req))
+  } else {
+    event.respondWith(cacheFirst(req))
+  }
 })
 
 // 网络优先
 async function networkFirst (req) {
+  const cache = await caches.open(CACHE_NAME)
   try {
     // 先从网络读取资源
-    return await fetch(req)
+    const fresh = await fetch(req)
+    // 把响应的备份存储到缓存中
+    cache.put(req, fresh.clone())
+    return fresh
   } catch (e) {
     // 去缓存中读取
-    const cache = await caches.open(CACHE_NAME)
     return await cache.match(req)
   }
 }
 
 // 缓存优先
-function cacheFirst (req) {
+async function cacheFirst (req) {
   const cache = await caches.open(CACHE_NAME)
   const cached = await cache.match(req)
   // 如果从缓存中得到了数据
