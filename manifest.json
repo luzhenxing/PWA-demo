@@ -1,0 +1,13 @@
+{
+  "name": "测试 pwa App",
+  "short_name": "pwa App",
+  "start_url": "/index.html",
+  "icons": [{
+    "src": "qyer_logo_114.png",
+    "sizes": "114x114",
+    "type": "image/png"
+  }],
+  "background_color": "skyblue",
+  "theme_color": "yellow",
+  "display": "standalone"
+}

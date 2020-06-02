@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <h1>hello PWA</h1>
+  <p>PWA（Progressive Web App）,即渐进式WEB应用</p>
+  <script>
+    window.addEventListener('load', async () => {
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register('./sw.js')
+          console.log('注册成功', registration)
+        } catch(err) {
+          console.error(err)
+        }
+      }
+
+      const res = await fetch('./mock.json')
+      const data = await res.json()
+      console.log(data.name)
+    })
+
+    // 获取通知权限
+    if (Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+
+    // 如果页面加载，发现用户没有联网，则给用户发一个通知
+    if (! window.navigator.onLine) {
+      new Notification('提示', {
+        body: '你当前没有网络，你访问的是缓存'
+      })
+    }
+    // 联网事件(online)，断网事件(offline)
+    window.addEventListener('online', () => {
+      new Notification('提示', {
+        body: '已经连上网络，请刷新从新访问'
+      })
+    })
+  </script>
+</body>
+</html>
